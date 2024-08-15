@@ -1,0 +1,16 @@
+name: apush_cmd
+description: A sample command-line application.
+version: 1.0.0
+
+environment:
+  sdk: ^3.4.3
+
+
+dependencies:
+  args: ^2.5.0
+  dio: ^5.5.0+1
+
+
+dev_dependencies:
+  lints: ^3.0.0
+

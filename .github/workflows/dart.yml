@@ -1,0 +1,90 @@
+name: Dart
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+
+  create:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+          draft: false
+          prerelease: false
+
+  build:
+    needs: create
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        target-arch: [x86_64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Report version
+        run: dart --version
+
+
+      - name: Compile (Linux & macOS)
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p ${{ github.workspace }}/package
+          filename="${{ runner.os }}_${{ matrix.target-arch }}_apush-cmd"
+          dart compile exe bin/apush_cmd.dart -o ${{ github.workspace }}/package/$filename
+
+      - name: Compile (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          New-Item -ItemType Directory -Force -Path $Env:GITHUB_WORKSPACE\package
+          $filename="${{ runner.os }}_${{ matrix.target-arch }}_apush-cmd.exe"
+          dart compile exe bin/apush_cmd.dart -o $Env:GITHUB_WORKSPACE\package\$filename
+        shell: pwsh
+
+
+      - name: Upload Release Asset (Linux & macOS)
+        if: runner.os != 'Windows'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create.outputs.upload_url }}
+          asset_path: ${{ github.workspace }}/package/${{ runner.os }}_${{ matrix.target-arch }}_apush-cmd
+          asset_name: ${{ runner.os }}_${{ matrix.target-arch }}_apush-cmd
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create.outputs.upload_url }}
+          asset_path: ${{ github.workspace }}\package\${{ runner.os }}_${{ matrix.target-arch }}_apush-cmd.exe
+          asset_name: ${{ runner.os }}_${{ matrix.target-arch }}_apush-cmd.exe
+          asset_content_type: application/octet-stream
+
+
