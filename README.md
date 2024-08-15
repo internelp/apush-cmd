@@ -128,4 +128,9 @@ apush-cmd signin -u nasctl -p mypassword
 ```
 推送成功：Message queued: 3dff797c-7e16-4184-b0be-ccefbe2387fc
 ```
+## 使用 NASCTL 接收 qbitTorrent 消息
+待补充
+
+## 使用 NASCTL 接收 tranmission 消息
+待补充
 
