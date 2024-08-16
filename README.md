@@ -140,3 +140,15 @@ qBitTorrent 设置——选项——下载——运行外部程序
 ## 使用 NASCTL 接收 tranmission 消息
 待补充
 
+## 错误解决
+
+1. 在docker 中运行时报错 `./apush-cmd: not found`
+```
+# ./apush-cmd 
+sh: ./apush-cmd: not found
+```
+解决方法：只读映射 /lib64 目录至容器中。
+```
+/lib64/:/lib64/:ro
+```
+
