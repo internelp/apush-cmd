@@ -47,6 +47,7 @@ push(ArgResults args) async {
     final response = await dio.post("/push", data: payload);
     print("推送成功：${response.data}");
   } on DioException catch (e) {
+    print("Exception: $e");
     print("状态码：${e.response?.statusCode}");
     fatal("推送失败：${e.response?.data}");
   } catch (e) {
