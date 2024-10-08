@@ -151,4 +151,16 @@ sh: ./apush-cmd: not found
 ```
 /lib64/:/lib64/:ro
 ```
-
+2. HandshakeException: Handshake error in client
+当本地证书错误时会报以下错误信息。
+```
+Exception: DioException [unknown]: null
+Error: HandshakeException: Handshake error in client (OS Error: 
+        CERTIFICATE_VERIFY_FAILED: unable to get local issuer certificate(handshake.cc:393))
+```
+解决方法：安装 `ca-certificates`
+```
+# RHEL
+yum install ca-certificates
+update-ca-certificates
+```
